@@ -1,3 +1,6 @@
+[variables]
+PLAYWRIGHT_BROWSERS_PATH = "/ms-playwright"
+
 [phases.setup]
 aptPkgs = [
   "libnss3", "libnspr4", "libatk1.0-0", "libatk-bridge2.0-0",
@@ -10,5 +13,5 @@ aptPkgs = [
 [phases.install]
 cmds = [
   "pip install -r requirements.txt",
-  "playwright install chromium"
+  "PLAYWRIGHT_BROWSERS_PATH=/ms-playwright playwright install chromium"
 ]
