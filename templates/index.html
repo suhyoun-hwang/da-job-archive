@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>데이터 분석가 채용 공고</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f6f8;
+      color: #1a1a2e;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 20px 32px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    header h1 { font-size: 1.25rem; font-weight: 700; }
+
+    header .count {
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .filter-bar {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 14px 32px;
+    }
+
+    .filter-bar form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      outline: none;
+      background: #fff;
+    }
+
+    .filter-bar input:focus,
+    .filter-bar select:focus {
+      border-color: #6366f1;
+    }
+
+    .filter-bar button {
+      padding: 8px 18px;
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+
+    .filter-bar button:hover { background: #4f46e5; }
+
+    .filter-bar a.reset {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      text-decoration: none;
+    }
+
+    .filter-bar a.reset:hover { color: #6b7280; }
+
+    .main {
+      max-width: 960px;
+      margin: 28px auto;
+      padding: 0 16px;
+    }
+
+    .result-info {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+
+    .result-info strong { color: #1a1a2e; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 14px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: box-shadow 0.15s;
+    }
+
+    .card:hover {
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: 0.975rem;
+      font-weight: 600;
+      color: #1a1a2e;
+      text-decoration: none;
+      line-height: 1.4;
+    }
+
+    .card-title:hover { color: #6366f1; }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 99px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .badge.wanted  { background: #fef3c7; color: #92400e; }
+    .badge.linkedin { background: #dbeafe; color: #1e40af; }
+    .badge.naver    { background: #dcfce7; color: #166534; }
+    .badge.remember { background: #ede9fe; color: #5b21b6; }
+
+    .card-company { font-size: 0.875rem; color: #374151; }
+
+    .card-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 80px 0;
+      color: #9ca3af;
+    }
+
+    .empty p { margin-top: 8px; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>데이터 분석가 채용 공고</h1>
+  <span class="count">전체 {{ total }}건</span>
+</header>
+
+<div class="filter-bar">
+  <form method="get">
+    <select name="source">
+      <option value="" {% if not source %}selected{% endif %}>출처 전체</option>
+      <option value="wanted"   {% if source == 'wanted'   %}selected{% endif %}>원티드</option>
+      <option value="linkedin" {% if source == 'linkedin' %}selected{% endif %}>링크드인</option>
+      <option value="remember" {% if source == 'remember' %}selected{% endif %}>리멤버</option>
+    </select>
+    <select name="company_size">
+      <option value="" {% if not company_size %}selected{% endif %}>규모 전체</option>
+      <option value="대기업"   {% if company_size == '대기업'   %}selected{% endif %}>대기업</option>
+      <option value="중견기업" {% if company_size == '중견기업' %}selected{% endif %}>중견기업</option>
+      <option value="스타트업" {% if company_size == '스타트업' %}selected{% endif %}>스타트업</option>
+    </select>
+    <select name="industry">
+      <option value="" {% if not industry %}selected{% endif %}>업종 전체</option>
+      {% for ind in ["IT/SW","금융/핀테크","커머스/유통","게임","미디어/콘텐츠","제조/화학","컨설팅/리서치","교육","헬스케어","기타"] %}
+      <option value="{{ ind }}" {% if industry == ind %}selected{% endif %}>{{ ind }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="keyword"  placeholder="키워드 (제목·회사명)" value="{{ keyword }}">
+    <input type="text" name="location" placeholder="지역" value="{{ location }}">
+    <button type="submit">검색</button>
+    {% if source or keyword or location or company_size or industry %}
+      <a href="/" class="reset">초기화</a>
+    {% endif %}
+  </form>
+</div>
+
+<div class="main">
+  <div class="result-info">
+    {% if source or keyword or location %}
+      필터 결과 <strong>{{ jobs|length }}건</strong>
+    {% else %}
+      전체 <strong>{{ jobs|length }}건</strong>
+    {% endif %}
+  </div>
+
+  {% if jobs %}
+    <div class="cards">
+      {% for job in jobs %}
+      <div class="card">
+        <div class="card-top">
+          <a class="card-title" href="{{ job.url }}" target="_blank" rel="noopener">
+            {{ job.title }}
+          </a>
+          <span class="badge {{ job.source }}">
+            {% if job.source == 'wanted' %}원티드
+            {% elif job.source == 'linkedin' %}링크드인
+            {% elif job.source == 'remember' %}리멤버
+            {% else %}{{ job.source }}{% endif %}
+          </span>
+        </div>
+        <div class="card-company">{{ job.company }}</div>
+        <div class="card-meta">
+          {% if job.location %}<span>{{ job.location }}</span>{% endif %}
+          {% if job['company_size'] %}<span>{{ job['company_size'] }}</span>{% endif %}
+          {% if job['industry'] %}<span>{{ job['industry'] }}</span>{% endif %}
+          <span>{{ job.collected_at[:10] }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">
+      <div>검색 결과가 없습니다.</div>
+      <p>다른 키워드나 필터를 사용해보세요.</p>
+    </div>
+  {% endif %}
+</div>
+
+</body>
+</html>
