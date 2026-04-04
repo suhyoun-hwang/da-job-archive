@@ -15,6 +15,16 @@ scheduler.add_job(collect, "cron", hour=0, minute=0)
 scheduler.start()
 
 
+@app.route("/collect")
+def trigger_collect():
+    secret = request.args.get("secret", "")
+    if secret != os.getenv("COLLECT_SECRET", ""):
+        return "Unauthorized", 401
+    import threading
+    threading.Thread(target=collect).start()
+    return "수집 시작됨", 200
+
+
 @app.route("/")
 def index():
     source = request.args.get("source", "")
