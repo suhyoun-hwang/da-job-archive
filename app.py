@@ -1,5 +1,7 @@
+import json
 import os
 import sqlite3
+from collections import Counter
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, render_template, request
@@ -25,6 +27,43 @@ def trigger_collect():
     return "수집 시작됨", 200
 
 
+def compute_insights(jobs) -> dict:
+    """필터된 jobs 목록에서 req_skills, req_experience, preferred 집계 → insights dict 반환"""
+    analyzed_count = sum(1 for j in jobs if j["req_skills"] is not None)
+    if analyzed_count == 0:
+        return {"analyzed_count": 0}
+
+    skills_counter: Counter = Counter()
+    exp_counter: Counter = Counter()
+    preferred_counter: Counter = Counter()
+
+    for job in jobs:
+        if job["req_skills"]:
+            try:
+                for skill in json.loads(job["req_skills"]):
+                    if skill:
+                        skills_counter[skill] += 1
+            except (json.JSONDecodeError, TypeError):
+                pass
+        if job["req_experience"]:
+            exp_counter[job["req_experience"]] += 1
+        if job["preferred"]:
+            try:
+                for kw in json.loads(job["preferred"]):
+                    if kw:
+                        preferred_counter[kw] += 1
+            except (json.JSONDecodeError, TypeError):
+                pass
+
+    total = analyzed_count
+    return {
+        "analyzed_count": analyzed_count,
+        "top_skills": [(skill, cnt, round(cnt / total * 100)) for skill, cnt in skills_counter.most_common(10)],
+        "experience": [(exp, cnt, round(cnt / total * 100)) for exp, cnt in exp_counter.most_common()],
+        "top_preferred": [(kw, cnt, round(cnt / total * 100)) for kw, cnt in preferred_counter.most_common(8)],
+    }
+
+
 @app.route("/")
 def index():
     source = request.args.get("source", "")
@@ -32,9 +71,11 @@ def index():
     location = request.args.get("location", "")
     company_size = request.args.get("company_size", "")
     industry = request.args.get("industry", "")
+    req_experience = request.args.get("req_experience", "")
 
     query = """
-        SELECT id, title, company, url, location, source, collected_at, company_size, industry
+        SELECT id, title, company, url, location, source, collected_at,
+               company_size, industry, req_skills, req_experience, preferred
         FROM jobs WHERE 1=1
     """
     params = []
@@ -54,6 +95,9 @@ def index():
     if industry:
         query += " AND industry = ?"
         params.append(industry)
+    if req_experience:
+        query += " AND req_experience = ?"
+        params.append(req_experience)
 
     query += " ORDER BY collected_at DESC"
 
@@ -64,6 +108,8 @@ def index():
         total = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
         last_updated = conn.execute("SELECT MAX(collected_at) FROM jobs").fetchone()[0]
 
+    insights = compute_insights(jobs)
+
     return render_template(
         "index.html",
         jobs=jobs,
@@ -73,7 +119,9 @@ def index():
         location=location,
         company_size=company_size,
         industry=industry,
+        req_experience=req_experience,
         last_updated=last_updated[:10] if last_updated else "",
+        insights=insights,
     )
 
 

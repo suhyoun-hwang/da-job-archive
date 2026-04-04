@@ -158,6 +158,79 @@
       color: #9ca3af;
     }
 
+    /* 인사이트 패널 */
+    .insights {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 20px 32px;
+    }
+
+    .insights-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #9ca3af;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .insights-title span {
+      font-weight: 400;
+      color: #d1d5db;
+    }
+
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .insights-section h3 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 10px;
+    }
+
+    .insight-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .insight-label {
+      font-size: 0.8rem;
+      color: #374151;
+      width: 110px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .insight-bar-wrap {
+      flex: 1;
+      background: #f3f4f6;
+      border-radius: 99px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    .insight-bar {
+      height: 100%;
+      border-radius: 99px;
+      background: #6366f1;
+    }
+
+    .insight-pct {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      width: 32px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
     .empty {
       text-align: center;
       padding: 80px 0;
@@ -165,6 +238,12 @@
     }
 
     .empty p { margin-top: 8px; font-size: 0.875rem; }
+
+    @media (max-width: 600px) {
+      .insights { padding: 16px; }
+      .insights-grid { grid-template-columns: 1fr; gap: 16px; }
+      .insight-label { width: 90px; }
+    }
 
     @media (max-width: 600px) {
       header {
@@ -221,14 +300,70 @@
       <option value="{{ ind }}" {% if industry == ind %}selected{% endif %}>{{ ind }}</option>
       {% endfor %}
     </select>
+    <select name="req_experience">
+      <option value="" {% if not req_experience %}selected{% endif %}>경력 전체</option>
+      {% for exp in ["신입", "1년 이상", "3년 이상", "5년 이상", "무관"] %}
+      <option value="{{ exp }}" {% if req_experience == exp %}selected{% endif %}>{{ exp }}</option>
+      {% endfor %}
+    </select>
     <input type="text" name="keyword"  placeholder="키워드 (제목·회사명)" value="{{ keyword }}">
     <input type="text" name="location" placeholder="지역" value="{{ location }}">
     <button type="submit">검색</button>
-    {% if source or keyword or location or company_size or industry %}
+    {% if source or keyword or location or company_size or industry or req_experience %}
       <a href="/" class="reset">초기화</a>
     {% endif %}
   </form>
 </div>
+
+{% if insights and insights.analyzed_count > 0 %}
+<div class="insights">
+  <div class="insights-title">
+    채용시장 인사이트 <span>— {{ insights.analyzed_count }}개 공고 분석 기준</span>
+  </div>
+  <div class="insights-grid">
+
+    <div class="insights-section">
+      <h3>요구 기술 스택</h3>
+      {% for skill, cnt, pct in insights.top_skills %}
+      <div class="insight-row">
+        <span class="insight-label" title="{{ skill }}">{{ skill }}</span>
+        <div class="insight-bar-wrap">
+          <div class="insight-bar" style="width: {{ pct }}%"></div>
+        </div>
+        <span class="insight-pct">{{ pct }}%</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="insights-section">
+      <h3>요구 경력</h3>
+      {% for exp, cnt, pct in insights.experience %}
+      <div class="insight-row">
+        <span class="insight-label">{{ exp }}</span>
+        <div class="insight-bar-wrap">
+          <div class="insight-bar" style="width: {{ pct }}%; background: #10b981"></div>
+        </div>
+        <span class="insight-pct">{{ pct }}%</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="insights-section">
+      <h3>우대 사항</h3>
+      {% for kw, cnt, pct in insights.top_preferred %}
+      <div class="insight-row">
+        <span class="insight-label" title="{{ kw }}">{{ kw }}</span>
+        <div class="insight-bar-wrap">
+          <div class="insight-bar" style="width: {{ pct }}%; background: #f59e0b"></div>
+        </div>
+        <span class="insight-pct">{{ pct }}%</span>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endif %}
 
 <div class="main">
   <div class="result-info">

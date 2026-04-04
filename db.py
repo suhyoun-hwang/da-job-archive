@@ -26,6 +26,14 @@ def init_db(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE jobs ADD COLUMN company_size TEXT")
     if "industry" not in cols:
         conn.execute("ALTER TABLE jobs ADD COLUMN industry TEXT")
+    if "description" not in cols:
+        conn.execute("ALTER TABLE jobs ADD COLUMN description TEXT")
+    if "req_skills" not in cols:
+        conn.execute("ALTER TABLE jobs ADD COLUMN req_skills TEXT")
+    if "req_experience" not in cols:
+        conn.execute("ALTER TABLE jobs ADD COLUMN req_experience TEXT")
+    if "preferred" not in cols:
+        conn.execute("ALTER TABLE jobs ADD COLUMN preferred TEXT")
     conn.commit()
 
 

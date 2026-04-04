@@ -1,0 +1,19 @@
+[Unit]
+Description=DA Job Archive Flask App
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/opt/da_job_archive
+EnvironmentFile=/opt/da_job_archive/.env
+ExecStart=/opt/da_job_archive/venv/bin/gunicorn app:app \
+    --bind 127.0.0.1:8000 \
+    --workers 1 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile -
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
