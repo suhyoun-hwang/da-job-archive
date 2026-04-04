@@ -3,7 +3,7 @@ import sqlite3
 
 from flask import Flask, render_template, request
 
-from db import DB_PATH
+from db import DB_PATH, init_db
 
 app = Flask(__name__)
 
@@ -41,6 +41,7 @@ def index():
     query += " ORDER BY collected_at DESC"
 
     with sqlite3.connect(DB_PATH) as conn:
+        init_db(conn)
         conn.row_factory = sqlite3.Row
         jobs = conn.execute(query, params).fetchall()
         total = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
