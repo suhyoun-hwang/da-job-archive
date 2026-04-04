@@ -165,6 +165,32 @@
     }
 
     .empty p { margin-top: 8px; font-size: 0.875rem; }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 16px;
+        flex-wrap: wrap;
+      }
+
+      header .updated {
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .filter-bar { padding: 12px 16px; }
+
+      .filter-bar select,
+      .filter-bar input {
+        width: 100%;
+        font-size: 1rem;
+      }
+
+      .filter-bar button { width: 100%; padding: 10px; font-size: 1rem; }
+
+      .main { margin: 16px auto; }
+
+      .cards { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
