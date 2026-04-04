@@ -62,6 +62,19 @@ def _classify_batch(client: anthropic.Anthropic, companies: list[str]) -> dict[s
 def classify_all():
     with sqlite3.connect(DB_PATH) as conn:
         init_db(conn)
+        # 이미 분류된 회사의 신규 공고는 API 없이 DB에서 바로 복사
+        conn.execute("""
+            UPDATE jobs
+            SET
+                company_size = (SELECT company_size FROM jobs j2
+                                WHERE j2.company = jobs.company AND j2.company_size IS NOT NULL LIMIT 1),
+                industry     = (SELECT industry     FROM jobs j2
+                                WHERE j2.company = jobs.company AND j2.industry     IS NOT NULL LIMIT 1)
+            WHERE company_size IS NULL
+              AND company IN (SELECT DISTINCT company FROM jobs WHERE company_size IS NOT NULL)
+        """)
+        conn.commit()
+        # 진짜 신규 회사만 추출
         rows = conn.execute(
             "SELECT DISTINCT company FROM jobs WHERE company != '' AND company_size IS NULL"
         ).fetchall()
