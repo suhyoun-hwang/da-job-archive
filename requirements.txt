@@ -4,3 +4,4 @@ requests==2.32.5
 beautifulsoup4==4.14.3
 anthropic==0.89.0
 python-dotenv==1.2.1
+APScheduler==3.10.4
