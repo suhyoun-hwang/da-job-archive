@@ -62,6 +62,7 @@ def index():
         conn.row_factory = sqlite3.Row
         jobs = conn.execute(query, params).fetchall()
         total = conn.execute("SELECT COUNT(*) FROM jobs").fetchone()[0]
+        last_updated = conn.execute("SELECT MAX(collected_at) FROM jobs").fetchone()[0]
 
     return render_template(
         "index.html",
@@ -72,6 +73,7 @@ def index():
         location=location,
         company_size=company_size,
         industry=industry,
+        last_updated=last_updated[:10] if last_updated else "",
     )
 
 

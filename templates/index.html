@@ -29,6 +29,12 @@
       color: #6b7280;
     }
 
+    header .updated {
+      margin-left: auto;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
     .filter-bar {
       background: #fff;
       border-bottom: 1px solid #e5e7eb;
@@ -166,6 +172,7 @@
 <header>
   <h1>데이터 분석가 채용 공고</h1>
   <span class="count">전체 {{ total }}건</span>
+  {% if last_updated %}<span class="updated">업데이트 {{ last_updated }}</span>{% endif %}
 </header>
 
 <div class="filter-bar">
@@ -226,7 +233,6 @@
           {% if job.location %}<span>{{ job.location }}</span>{% endif %}
           {% if job['company_size'] %}<span>{{ job['company_size'] }}</span>{% endif %}
           {% if job['industry'] %}<span>{{ job['industry'] }}</span>{% endif %}
-          <span>{{ job.collected_at[:10] }}</span>
         </div>
       </div>
       {% endfor %}
