@@ -197,16 +197,19 @@ def fetch_all_descriptions() -> None:
                 conn.commit()
             updated += 1
 
-    # LinkedIn: Playwright로 배치 수집
+    # LinkedIn: Playwright로 배치 수집 (Playwright 미설치 환경에서는 건너뜀)
     linkedin_jobs = [(job_id, url) for job_id, url, source in rows if source == "linkedin"]
     if linkedin_jobs:
-        logger.info("LinkedIn Playwright 수집 시작: %d건", len(linkedin_jobs))
-        linkedin_results = _fetch_linkedin_batch(linkedin_jobs)
-        with sqlite3.connect(DB_PATH) as conn:
-            for job_id, desc in linkedin_results.items():
-                conn.execute("UPDATE jobs SET description=? WHERE id=?", (desc, job_id))
-            conn.commit()
-        updated += len(linkedin_results)
+        try:
+            logger.info("LinkedIn Playwright 수집 시작: %d건", len(linkedin_jobs))
+            linkedin_results = _fetch_linkedin_batch(linkedin_jobs)
+            with sqlite3.connect(DB_PATH) as conn:
+                for job_id, desc in linkedin_results.items():
+                    conn.execute("UPDATE jobs SET description=? WHERE id=?", (desc, job_id))
+                conn.commit()
+            updated += len(linkedin_results)
+        except Exception as e:
+            logger.warning("LinkedIn 수집 건너뜀 (Playwright 미설치): %s", e)
 
     logger.info("description 수집 완료: %d/%d건 성공", updated, len(rows))
 
