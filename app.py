@@ -12,9 +12,9 @@ from main import collect
 app = Flask(__name__)
 
 # 백그라운드 스케줄러: 매일 09:00 KST(UTC 00:00) 수집
-scheduler = BackgroundScheduler(timezone="UTC")
-scheduler.add_job(collect, "cron", hour=0, minute=0)
-scheduler.start()
+# scheduler = BackgroundScheduler(timezone="UTC")
+# scheduler.add_job(collect, "cron", hour=0, minute=0)
+# scheduler.start()
 
 
 @app.route("/collect")
